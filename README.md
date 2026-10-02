@@ -1,2 +1,2 @@
-# network-map-input
-Input-Page
+# network-capture
+Inbox-Page
