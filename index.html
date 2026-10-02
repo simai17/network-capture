@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f6f8b" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#11191e" media="(prefers-color-scheme: dark)">
+  <title>Network capture</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Network</h1>
+    <button type="button" id="status" class="status" aria-live="polite"></button>
+    <button type="button" id="settings-btn" class="icon-btn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1c.5.4 1.1.7 1.7 1L11 21h4l.4-2.9c.6-.3 1.2-.6 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+    </button>
+  </header>
+
+  <main id="main">
+    <section id="home" class="screen">
+      <div id="event-bar" class="event-bar"></div>
+      <div class="actions">
+        <button type="button" class="big primary" data-open="person"><span class="plus">+</span> Person</button>
+        <div class="row2">
+          <button type="button" class="big" data-open="followup">Follow-up</button>
+          <button type="button" class="big" data-open="event">Event</button>
+        </div>
+      </div>
+      <section id="queue" class="queue"></section>
+      <p class="fine" id="fine"></p>
+    </section>
+
+    <form id="person" class="screen" hidden novalidate>
+      <h2>New person</h2>
+      <label class="field"><span>Name</span><input name="name" required autocomplete="off" autocapitalize="words" enterkeyhint="next"></label>
+      <label class="field"><span>Organisation</span><input name="organisation" autocomplete="off" autocapitalize="words" enterkeyhint="next"></label>
+      <label class="field"><span>Position</span><input name="title" autocomplete="off" enterkeyhint="next"></label>
+      <div class="two">
+        <label class="field"><span>Email</span><input name="email" type="email" inputmode="email" autocomplete="off" autocapitalize="off"></label>
+        <label class="field"><span>Phone</span><input name="phone" type="tel" inputmode="tel" autocomplete="off"></label>
+      </div>
+      <label class="field"><span>Tags</span><input name="tags" autocomplete="off" autocapitalize="off" placeholder="comma-separated, e.g. dme, lca"></label>
+      <label class="field"><span>Note</span><textarea name="note" rows="3" placeholder="What did you talk about?"></textarea></label>
+      <label class="check" id="met-wrap"><input type="checkbox" name="met"> <span id="met-label">Met at the current event</span></label>
+      <details class="more">
+        <summary>Follow-up</summary>
+        <div class="two">
+          <label class="field"><span>Date</span><input name="fu_date" type="date"></label>
+          <label class="field"><span>About</span><input name="fu_note" autocomplete="off"></label>
+        </div>
+      </details>
+      <div class="photos">
+        <div id="thumbs" class="thumbs"></div>
+        <div class="photo-btns">
+          <label class="btn"><input type="file" accept="image/*" capture="environment" data-photo hidden>Photo of business card</label>
+          <label class="btn quiet"><input type="file" accept="image/*" data-photo hidden>From gallery</label>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn primary" data-next="1">Save &amp; next</button>
+        <button type="submit" class="btn" data-next="0">Save</button>
+        <button type="button" class="btn quiet" data-cancel>Cancel</button>
+      </div>
+    </form>
+
+    <form id="event" class="screen" hidden novalidate>
+      <h2>Start an event</h2>
+      <p class="hint">People you add afterwards are marked as met here, until you end the event.</p>
+      <label class="field"><span>Name</span><input name="name" required autocomplete="off" autocapitalize="words"></label>
+      <div class="two">
+        <label class="field"><span>Date</span><input name="date" type="date" required></label>
+        <label class="field"><span>Until</span><input name="end_date" type="date"></label>
+      </div>
+      <label class="field"><span>Location</span><input name="location" autocomplete="off" autocapitalize="words"></label>
+      <label class="field"><span>Kind</span>
+        <select name="kind">
+          <option value="conference">conference</option>
+          <option value="workshop">workshop</option>
+          <option value="meeting">meeting</option>
+          <option value="lecture">lecture</option>
+          <option value="visit">visit</option>
+          <option value="other">other</option>
+        </select>
+      </label>
+      <label class="field"><span>Note</span><textarea name="note" rows="2"></textarea></label>
+      <div class="form-actions">
+        <button type="submit" class="btn primary">Start event</button>
+        <button type="button" class="btn quiet" data-cancel>Cancel</button>
+      </div>
+    </form>
+
+    <form id="followup" class="screen" hidden novalidate>
+      <h2>Follow-up</h2>
+      <p class="hint">For someone already in your network. The name is matched on the laptop.</p>
+      <label class="field"><span>Person</span><input name="person" required autocomplete="off" autocapitalize="words"></label>
+      <label class="field"><span>Date</span><input name="date" type="date" required></label>
+      <label class="field"><span>About</span><input name="note" autocomplete="off" placeholder="e.g. send the reactor parameters"></label>
+      <div class="form-actions">
+        <button type="submit" class="btn primary">Save</button>
+        <button type="button" class="btn quiet" data-cancel>Cancel</button>
+      </div>
+    </form>
+
+    <form id="settings" class="screen" hidden novalidate>
+      <h2>Settings</h2>
+      <p class="hint">Entries go encrypted into your private inbox repository on GitHub. This phone can only add entries; it cannot read your network.</p>
+      <label class="field"><span>Inbox repository</span><input name="repo" placeholder="your-name/network-inbox" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+      <label class="field"><span>GitHub token</span>
+        <span class="with-btn"><input name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…"><button type="button" class="btn quiet" id="show-token">Show</button></span>
+      </label>
+      <label class="field"><span>Branch</span><input name="branch" placeholder="main" autocomplete="off" autocapitalize="off"></label>
+      <div class="form-actions">
+        <button type="submit" class="btn primary">Save</button>
+        <button type="button" class="btn" id="test-conn">Test connection</button>
+        <button type="button" class="btn quiet" data-cancel>Close</button>
+      </div>
+      <p id="test-result" class="hint" role="status"></p>
+      <dl class="facts">
+        <dt>Key fingerprint</dt><dd id="kid">–</dd>
+        <dt>App version</dt><dd id="version">–</dd>
+      </dl>
+      <p class="hint">Compare the fingerprint with <code>network phone setup</code> on the laptop. Install: browser menu → “Add to home screen” / “Install app”.</p>
+    </form>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="shared.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
